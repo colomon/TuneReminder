@@ -18,5 +18,9 @@ class Tunes {
         @!tunes[$id] = $record;
         $id;
     }
+    
+    method GetTuneName($id)    { @!tunes[$id].name; }
+    method GetTuneSnippet($id) { @!tunes[$id].snippet; }
+    method GetTuneComment($id) { @!tunes[$id].comment; }
 }
 
