@@ -22,5 +22,28 @@ class Tunes {
     method GetTuneName($id)    { @!tunes[$id].name; }
     method GetTuneSnippet($id) { @!tunes[$id].snippet; }
     method GetTuneComment($id) { @!tunes[$id].comment; }
+    
+    method Save($filename) {
+        my $count = 0;
+        my $file = open($filename, :w);
+        for @!tunes.kv -> $id, $tune {
+            $file.say: ($id, $tune.name, $tune.snippet, $tune.comment // "").join(" » ");
+            $count++;
+        }
+        $file.close;
+        $count;
+    }
+    
+    method Load($filename) {
+        my $count = 0;
+        my $file = open($filename);
+        for $file.lines -> $line {
+            my ($id, $name, $snippet, $comment) = $line.split(" » ");
+            @!tunes[$id] = TuneRecord.new($id, $name, $snippet, $comment);
+            $count++;
+        }
+        # $file.close; # NYI in niecza, but should work
+        $count;
+    }
 }
 
