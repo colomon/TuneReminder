@@ -15,7 +15,6 @@ constant $GLIB = "glib-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=
 constant $G_TYPE_STRING = CLR::("GLib.GType,$GLIB").String;
 constant $G_TYPE_INT = CLR::("GLib.GType,$GLIB").Int;
 constant $G_TYPE_BOOLEAN = CLR::("GLib.GType,$GLIB").Boolean;
-# constant $G_TYPE_STRING = CLR::("GLib.TypeFundamentals,$GLIB").TypeString.value__;
 
 constant Application      = CLR::("Gtk.Application,$GTK");
 constant Window           = CLR::("Gtk.Window,$GTK");
@@ -66,13 +65,11 @@ sub CreateTree($tunes, @elements) {
 }
 
 sub CreateView($model) {
-    sub DoneToggled($renderer, $path) {
-        say "Hey, here!";
-        # my $model = $view.GetModel;
-        my $iter = TreeIter;
-        $model.GetIterFromString($iter, $path);
+    sub DoneToggled($, $path) {
+        my $iter = TreeIter.Zero;
+        $model.GetIterFromString($iter, $path.Path);
         my $value = $model.GetValue($iter, 1);
-        $model.SetValue($iter, 1, !$value);
+        $model.SetValue($iter, 1, $value.Equals(False));
     }
 
     my $view = TreeView.new($model);
@@ -81,7 +78,7 @@ sub CreateView($model) {
         my $renderer = CellRendererToggle.new;
         $renderer.add_Toggled(&DoneToggled);
         my $column = TreeViewColumn.new("Done", $renderer);
-        # $column.AddAttribute($renderer, "toggle", 1);
+        $column.AddAttribute($renderer, "active", 1);
         $view.AppendColumn($column);
     }
     
