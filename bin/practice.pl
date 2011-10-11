@@ -13,6 +13,8 @@ constant $GLIB = "glib-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=
 # use 'gacutil -l' to look up similar module details
 
 constant $G_TYPE_STRING = CLR::("GLib.GType,$GLIB").String;
+constant $G_TYPE_INT = CLR::("GLib.GType,$GLIB").Int;
+constant $G_TYPE_BOOLEAN = CLR::("GLib.GType,$GLIB").Boolean;
 # constant $G_TYPE_STRING = CLR::("GLib.TypeFundamentals,$GLIB").TypeString.value__;
 
 constant Application      = CLR::("Gtk.Application,$GTK");
@@ -26,6 +28,7 @@ constant TreeIter         = CLR::("Gtk.TreeIter,$GTK");
 constant ListStore        = CLR::("Gtk.ListStore,$GTK");
 constant CellRenderer     = CLR::("Gtk.CellRenderer,$GTK");
 constant CellRendererText = CLR::("Gtk.CellRendererText,$GTK");
+constant CellRendererToggle = CLR::("Gtk.CellRendererToggle,$GTK");
 # constant GdkCairoHelper = CLR::("Gdk.CairoHelper,$GDK");
 constant GtkDrawingArea   = CLR::("Gtk.DrawingArea,$GTK");
 
@@ -50,23 +53,43 @@ $window.ShowAll;
 Application.Run;  # end of main program, it's all over when this returns
 
 sub CreateTree($tunes, @elements) {
-    my $store = ListStore.new($G_TYPE_STRING, $G_TYPE_STRING, $G_TYPE_STRING);
+    my $store = ListStore.new($G_TYPE_INT, $G_TYPE_BOOLEAN, $G_TYPE_STRING, $G_TYPE_STRING, $G_TYPE_STRING);
     for @elements -> $id {
         my $iter = $store.Append;
-        $store.SetValue($iter, 0, $tunes.GetTuneName($id));
-        $store.SetValue($iter, 1, $tunes.GetTuneSnippet($id));
-        $store.SetValue($iter, 2, $tunes.GetTuneComment($id));
+        $store.SetValue($iter, 0, $id);
+        $store.SetValue($iter, 1, Bool::False);
+        $store.SetValue($iter, 2, $tunes.GetTuneName($id));
+        $store.SetValue($iter, 3, $tunes.GetTuneSnippet($id));
+        $store.SetValue($iter, 4, $tunes.GetTuneComment($id));
     }
     $store;
 }
 
 sub CreateView($model) {
+    sub DoneToggled($renderer, $path) {
+        say "Hey, here!";
+        # my $model = $view.GetModel;
+        my $iter = TreeIter;
+        $model.GetIterFromString($iter, $path);
+        my $value = $model.GetValue($iter, 1);
+        $model.SetValue($iter, 1, !$value);
+    }
+
     my $view = TreeView.new($model);
+
+    {
+        my $renderer = CellRendererToggle.new;
+        $renderer.add_Toggled(&DoneToggled);
+        my $column = TreeViewColumn.new("Done", $renderer);
+        # $column.AddAttribute($renderer, "toggle", 1);
+        $view.AppendColumn($column);
+    }
+    
     my @titles = <Tune Snippet Comment>;
     for @titles.kv -> $i, $title {
         my $renderer = CellRendererText.new;
         my $column = TreeViewColumn.new($title, $renderer);
-        $column.AddAttribute($renderer, "text", $i);
+        $column.AddAttribute($renderer, "text", $i + 2);
         $view.AppendColumn($column);
     }
     $view;
