@@ -43,11 +43,7 @@ $button.add_Clicked(&DeleteEvent);
 my $view = CreateTreeAndView($tunes, [0, 2, 1]);
 
 $window.Add($view);
-
-# my $drawingarea = GtkDrawingArea.new;
-# $drawingarea.add_ExposeEvent(&ExposeEvent);
 $window.add_DeleteEvent(&DeleteEvent);
-# $window.Add($drawingarea);
 $window.ShowAll;
 Application.Run;  # end of main program, it's all over when this returns
 
@@ -101,26 +97,3 @@ sub CreateTreeAndView($tunes, @elements) {
 sub DeleteEvent($obj, $args) {  #OK not used
     Application.Quit;
 };
-
-# sub ExposeEvent($obj, $args)
-# {
-#     $args;  # suppress "declared but not used" "Potential difficulties"
-#     my $cc = GdkCairoHelper.Create($obj.GdkWindow);  # Cairo Context
-#     my $windowX=0; my $windowY=0; my $windowWidth=0; my $windowHeight=0; my $windowDepth=0;
-#     $obj.GdkWindow.GetGeometry($windowX, $windowY, $windowWidth, $windowHeight, $windowDepth);
-#     $cc.SetSourceRGB(0.6, 1, 0.6); $cc.Paint;  # pale green background
-#     # Start the recursive drawing process
-#     my $x0=0; my $y0=0; my  $x1=$windowWidth-1; my $y1=$windowHeight/2;
-#     my $x2=0; my $y2=$windowHeight-1;
-#     my $depth = Sierpinski($cc, $x0, $y0, $x1, $y1, $x2, $y2, True, 1);
-#     my $text = sprintf("%d x %d, %d levels", $windowWidth, $windowHeight, $depth);
-#     $cc.SetSourceRGB(0.6, 0.6, 1);  # pale blue
-#     $cc.SetFontSize($windowWidth * 0.07);
-#     my $textWidth  = $cc.TextExtents($text).Width;
-#     my $textHeight = $cc.TextExtents($text).Height;
-#     $cc.MoveTo($windowWidth*0.98 - $textWidth, $windowHeight*0.01 + $textHeight);
-#     $cc.ShowText($text);
-#     $cc.Target.Dispose;
-#     $cc.dispose-hack; # Should be $cc.Dispose but CLR interop cannot call that
-#     # Tracked as https://github.com/sorear/niecza/issues/56
-# };
