@@ -15,15 +15,19 @@ constant $GLIB = "glib-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=
 constant $G_TYPE_STRING = CLR::("GLib.GType,$GLIB").String;
 # constant $G_TYPE_STRING = CLR::("GLib.TypeFundamentals,$GLIB").TypeString.value__;
 
-constant Application    = CLR::("Gtk.Application,$GTK");
-constant Window         = CLR::("Gtk.Window,$GTK");
-constant Box            = CLR::("Gtk.Box,$GTK");
-constant Button         = CLR::("Gtk.Button,$GTK");
-constant CheckButton    = CLR::("Gtk.CheckButton,$GTK");
-constant TreeIter       = CLR::("Gtk.TreeIter,$GTK");
-constant ListStore      = CLR::("Gtk.ListStore,$GTK");
+constant Application      = CLR::("Gtk.Application,$GTK");
+constant Window           = CLR::("Gtk.Window,$GTK");
+constant Box              = CLR::("Gtk.Box,$GTK");
+constant Button           = CLR::("Gtk.Button,$GTK");
+constant CheckButton      = CLR::("Gtk.CheckButton,$GTK");
+constant TreeView         = CLR::("Gtk.TreeView,$GTK");
+constant TreeViewColumn   = CLR::("Gtk.TreeViewColumn,$GTK");
+constant TreeIter         = CLR::("Gtk.TreeIter,$GTK");
+constant ListStore        = CLR::("Gtk.ListStore,$GTK");
+constant CellRenderer     = CLR::("Gtk.CellRenderer,$GTK");
+constant CellRendererText = CLR::("Gtk.CellRendererText,$GTK");
 # constant GdkCairoHelper = CLR::("Gdk.CairoHelper,$GDK");
-constant GtkDrawingArea = CLR::("Gtk.DrawingArea,$GTK");
+constant GtkDrawingArea   = CLR::("Gtk.DrawingArea,$GTK");
 
 Application.Init;
 my $window = Window.new("Tune Reminder");
@@ -32,9 +36,11 @@ $window.Resize($windowSizeX, $windowSizeY);  # TODO: resize at runtime NYI
 
 my $button = CheckButton.new("My Button");
 $button.add_Clicked(&DeleteEvent);
-$window.Add($button);
+# $window.Add($button);
 
-my $store = CreateTree($tunes, [0, 2, 1]);
+my $view = CreateTreeAndView($tunes, [0, 2, 1]);
+
+$window.Add($view);
 
 # my $drawingarea = GtkDrawingArea.new;
 # $drawingarea.add_ExposeEvent(&ExposeEvent);
@@ -51,11 +57,25 @@ sub CreateTree($tunes, @elements) {
         $store.SetValue($iter, 1, $tunes.GetTuneSnippet($id));
         $store.SetValue($iter, 2, $tunes.GetTuneComment($id));
     }
-    return $store;
+    $store;
 }
 
-sub CreateView() {
-    
+sub CreateView($model) {
+    my $view = TreeView.new($model);
+    my @titles = <Tune Snippet Comment>;
+    for @titles.kv -> $i, $title {
+        my $renderer = CellRendererText.new;
+        my $column = TreeViewColumn.new($title, $renderer);
+        $column.AddAttribute($renderer, "text", $i);
+        $view.AppendColumn($column);
+    }
+    $view;
+}
+
+sub CreateTreeAndView($tunes, @elements) {
+    my $model = CreateTree($tunes, @elements);
+    my $view = CreateView($model);
+    $view;
 }
 
 sub DeleteEvent($obj, $args) {  #OK not used
