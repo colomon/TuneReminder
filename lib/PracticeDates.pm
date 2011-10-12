@@ -6,25 +6,36 @@ class PracticeDates {
     method SetFilename($filename) {
         $!filename = $filename;
     }
+
+    method Load($filename) {
+        $!filename = $filename;
+        
+        my $file = open $!filename;
+        for $file.lines -> $line {
+            my ($date, @ids) = $line.words;
+            for @ids -> $i {
+                @!latest-practice[$i] = $date;
+            }
+        }
+        
+        self.Sort;
+    }
     
     method LatestPractice($id) {
         @!latest-practice[$id] // "1900-01-01";
     }
     
     method Sort() {
-        @!sorted-ids = (1..+@!sorted-ids).sort({ @!latest-practice[$^a] <=> @!latest-practice[$^b] });
+        my @ids = (0..+@!latest-practice).grep({ @!latest-practice[$_] });
+        @!sorted-ids = @ids.sort({ @!latest-practice[$^a] leg @!latest-practice[$^b] });
     }
     
-    method Load($filename) {
-        my $file = open $filename;
-        for $file.lines -> $line {
-            my ($date, @ids) = $line.comb;
-            @!latest-practice[@ids] = $date;
-        }
+    method Older($percentage) {
+        my $range = (+@!sorted-ids * ($percentage / 100)).Int;
+        @!sorted-ids[0..^$range];
     }
     
     method Record($date, @ids) {
-        say $!filename;
         for @ids -> $i {
             @!latest-practice[$i] = $date;
         }
