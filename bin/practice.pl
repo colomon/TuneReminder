@@ -40,7 +40,7 @@ my $button = CheckButton.new("My Button");
 $button.add_Clicked(&DeleteEvent);
 # $window.Add($button);
 
-my $view = CreateTreeAndView($tunes, [0, 2, 1]);
+my ($model, $view) = CreateTreeAndView($tunes, [0, 2, 1]);
 
 $window.Add($view);
 $window.add_DeleteEvent(&DeleteEvent);
@@ -61,8 +61,8 @@ sub CreateTree($tunes, @elements) {
 }
 
 sub CreateView($model) {
-    sub DoneToggled($, $path) {
-        my $iter = TreeIter.Zero;
+    sub DoneToggled($renderer, $path) { #OK not used
+        my $iter = TreeIter.default;
         $model.GetIterFromString($iter, $path.Path);
         my $value = $model.GetValue($iter, 1);
         $model.SetValue($iter, 1, $value.Equals(False));
@@ -91,9 +91,31 @@ sub CreateView($model) {
 sub CreateTreeAndView($tunes, @elements) {
     my $model = CreateTree($tunes, @elements);
     my $view = CreateView($model);
-    $view;
+    $model, $view;
+}
+
+sub DateStamp() {
+    sprintf("%04d-%02d-%02d", 
+            CLR::("System.DateTime").Now.Year,
+            CLR::("System.DateTime").Now.Month,
+            CLR::("System.DateTime").Now.Day);
+}
+
+sub ReportPraticed() {
+    my $iter = TreeIter.default;
+    say DateStamp;
+    $model.GetIterFirst($iter);
+    if $model.GetValue($iter, 1).Equals(True) {
+        say $model.GetValue($iter, 2);
+    }
+    while ($model.IterNext($iter)) {
+        if $model.GetValue($iter, 1).Equals(True) {
+            say $model.GetValue($iter, 2);
+        }
+    }
 }
 
 sub DeleteEvent($obj, $args) {  #OK not used
+    ReportPraticed;
     Application.Quit;
 };
