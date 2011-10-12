@@ -1,11 +1,16 @@
 use Tunes;
+use PracticeDates;
+
+my $filename = "sol-tunes";
 
 # Main documentation: http://docs.go-mono.com, particularly
 # Gnome (for Gdk and Gtk) and Mono (for Cairo) libraries.
 # See also: The X-Windows Disaster at http://www.art.net/~hopkins/Don/unix-haters/handbook.html
 
 my $tunes = Tunes.new;
-$tunes.Load("t/test-data");
+$tunes.Load($filename);
+my $practice-dates = PracticeDates.new;
+$practice-dates.Load($filename ~ ".dates");
 
 constant $GTK  = "gtk-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f";
 # constant $GDK  = "gdk-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f";
@@ -40,7 +45,7 @@ my $button = CheckButton.new("My Button");
 $button.add_Clicked(&DeleteEvent);
 # $window.Add($button);
 
-my ($model, $view) = CreateTreeAndView($tunes, [0, 2, 1]);
+my ($model, $view) = CreateTreeAndView($tunes, $practice-dates.Older(50));
 
 $window.Add($view);
 $window.add_DeleteEvent(&DeleteEvent);
@@ -103,16 +108,19 @@ sub DateStamp() {
 
 sub ReportPraticed() {
     my $iter = TreeIter.default;
-    say DateStamp;
+    my @ids;
     $model.GetIterFirst($iter);
     if $model.GetValue($iter, 1).Equals(True) {
-        say $model.GetValue($iter, 2);
+        @ids.push($model.GetValue($iter, 0));
     }
     while ($model.IterNext($iter)) {
         if $model.GetValue($iter, 1).Equals(True) {
-            say $model.GetValue($iter, 2);
+            @ids.push($model.GetValue($iter, 0));
         }
     }
+    
+    $practice-dates.Record(DateStamp(), @ids.map({ +($_.ToString) }));
+    say DateStamp() ~ " " ~ @ids.join(" ");
 }
 
 sub DeleteEvent($obj, $args) {  #OK not used

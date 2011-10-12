@@ -17,6 +17,7 @@ class PracticeDates {
                 @!latest-practice[$i] = $date;
             }
         }
+        $file.close;
         
         self.Sort;
     }

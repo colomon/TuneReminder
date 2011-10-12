@@ -42,7 +42,7 @@ class Tunes {
             @!tunes[$id] = TuneRecord.new($id, $name, $snippet, $comment);
             $count++;
         }
-        # $file.close; # NYI in niecza, but should work
+        $file.close;
         $count;
     }
 }
