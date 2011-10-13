@@ -120,7 +120,7 @@ sub ReportPraticed() {
     }
     
     $practice-dates.Record(DateStamp(), @ids.map({ +($_.ToString) }));
-    say DateStamp() ~ " " ~ @ids.join(" ");
+    # say DateStamp() ~ " " ~ @ids.join(" ");
 }
 
 sub DeleteEvent($obj, $args) {  #OK not used
