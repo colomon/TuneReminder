@@ -24,7 +24,9 @@ constant $G_TYPE_BOOLEAN = CLR::("GLib.GType,$GLIB").Boolean;
 constant Application      = CLR::("Gtk.Application,$GTK");
 constant Window           = CLR::("Gtk.Window,$GTK");
 constant Box              = CLR::("Gtk.Box,$GTK");
+constant VBox             = CLR::("Gtk.VBox,$GTK");
 constant Button           = CLR::("Gtk.Button,$GTK");
+constant HButtonBox       = CLR::("Gtk.HButtonBox,$GTK");
 constant CheckButton      = CLR::("Gtk.CheckButton,$GTK");
 constant TreeView         = CLR::("Gtk.TreeView,$GTK");
 constant TreeViewColumn   = CLR::("Gtk.TreeViewColumn,$GTK");
@@ -41,13 +43,20 @@ my $window = Window.new("Tune Reminder");
 my $windowSizeX = 640; my $windowSizeY = 560;
 $window.Resize($windowSizeX, $windowSizeY);  # TODO: resize at runtime NYI
 
-my $button = CheckButton.new("My Button");
-$button.add_Clicked(&DeleteEvent);
-# $window.Add($button);
+my $vbox = VBox.new(False, 4);
+my ($model, $view) = CreateTreeAndView($tunes, $practice-dates.Older(50).pick(10));
+$vbox.Add($view);
 
-my ($model, $view) = CreateTreeAndView($tunes, $practice-dates.Older(50));
+my $hbb = HButtonBox.new;
+my $refresh_button = Button.new("Refresh");
+$refresh_button.add_Clicked(&DeleteEvent);
+$hbb.Add($refresh_button);
+my $exit_button = Button.new("Exit");
+$exit_button.add_Clicked(&DeleteEvent);
+$hbb.Add($exit_button);
+$vbox.Add($hbb);
+$window.Add($vbox);
 
-$window.Add($view);
 $window.add_DeleteEvent(&DeleteEvent);
 $window.ShowAll;
 Application.Run;  # end of main program, it's all over when this returns
