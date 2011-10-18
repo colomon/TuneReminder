@@ -1,6 +1,6 @@
 This program attempts to duplicate the basic functionality of Alan Ng's Practice Machine (at http://irishtune.info ):
 
-    http://www.harmonyware.com/pictures/PracticeMachine.png
+    https://github.com/colomon/TuneReminder/blob/master/PracticeMachine.png
 
 The idea is to give the program a list of all the tunes you know, and then have it suggest tunes to practice.  You tell it when you've practiced each tune, and it records that info and uses it to help choose what tunes you should practice next.
 
@@ -8,7 +8,7 @@ Alan's setup was great, except that his only allows you to practice tunes in his
 
 To create a UI, I've used the Niecza implementation of Perl 6 and GTK.  Right now I'm displaying ABC instead of proper music notation, and don't have as many information fields, but the program randomly selects tunes you haven't practiced recently and records when you practice them.
 
-    http://www.harmonyware.com/pictures/TuneReminder.png
+    https://github.com/colomon/TuneReminder/blob/master/TuneReminder.png
 
 If you have Niecza installed and Mono with Gtk installed, invoking the program is simple:
 
