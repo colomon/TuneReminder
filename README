@@ -1,0 +1,30 @@
+This program attempts to duplicate the basic functionality of Alan Ng's Practice Machine (at http://irishtune.info ):
+
+    http://www.harmonyware.com/pictures/PracticeMachine.png
+
+The idea is to give the program a list of all the tunes you know, and then have it suggest tunes to practice.  You tell it when you've practiced each tune, and it records that info and uses it to help choose what tunes you should practice next.
+
+Alan's setup was great, except that his only allows you to practice tunes in his database of tunes, and he is unwilling to add tunes which are not Irish Traditional Music.  Thus I've had to roll my own version of the Practice Machine functionality so that I can use it to track the Newfoundland tunes I know, and other strange tunes.
+
+To create a UI, I've used the Niecza implementation of Perl 6 and GTK.  Right now I'm displaying ABC instead of proper music notation, and don't have as many information fields, but the program randomly selects tunes you haven't practiced recently and records when you practice them.
+
+    http://www.harmonyware.com/pictures/TuneReminder.png
+
+If you have Niecza installed and Mono with Gtk installed, invoking the program is simple:
+
+    mono ~/tools/niecza/run/Niecza.exe -Ilib bin/practice.pl
+
+You can also run the (limited at this point) test suite:
+
+    make test
+
+Work needed:
+
+1) General cleanup on the program.
+
+2) Make the UI a bit prettier.
+
+3) Script to report stats on practicing.
+
+4) Script to scrape tunes from Alan Ng's database.
+    
