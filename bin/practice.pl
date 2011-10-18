@@ -49,7 +49,7 @@ $vbox.Add($view);
 
 my $hbb = HButtonBox.new;
 my $refresh_button = Button.new("Refresh");
-$refresh_button.add_Clicked(&DeleteEvent);
+$refresh_button.add_Clicked(&RefreshEvent);
 $hbb.Add($refresh_button);
 my $exit_button = Button.new("Exit");
 $exit_button.add_Clicked(&DeleteEvent);
@@ -63,6 +63,11 @@ Application.Run;  # end of main program, it's all over when this returns
 
 sub CreateTree($tunes, @elements) {
     my $store = ListStore.new($G_TYPE_INT, $G_TYPE_BOOLEAN, $G_TYPE_STRING, $G_TYPE_STRING, $G_TYPE_STRING);
+    AddTunesToListStore($store, $tunes, @elements);
+    $store;
+}
+
+sub AddTunesToListStore($store, $tunes, @elements) {
     for @elements -> $id {
         my $iter = $store.Append;
         $store.SetValue($iter, 0, $id);
@@ -71,7 +76,6 @@ sub CreateTree($tunes, @elements) {
         $store.SetValue($iter, 3, $tunes.GetTuneSnippet($id));
         $store.SetValue($iter, 4, $tunes.GetTuneComment($id));
     }
-    $store;
 }
 
 sub CreateView($model) {
@@ -128,8 +132,34 @@ sub ReportPraticed() {
         }
     }
     
-    $practice-dates.Record(DateStamp(), @ids.map({ +($_.ToString) }));
+    if +@ids {
+        $practice-dates.Record(DateStamp(), @ids.map({ +($_.ToString) }));
+    }
     # say DateStamp() ~ " " ~ @ids.join(" ");
+}
+
+sub DeletePraticed() {
+    my $iter = TreeIter.default;
+    $model.GetIterFirst($iter);
+    
+    my $count = 0;
+    while $model.IterIsValid($iter) {
+        if $model.GetValue($iter, 1).Equals(True) {
+            $count++;
+            $model.Remove($iter);
+        } else {
+            $model.IterNext($iter);
+        }
+    }
+    $count;
+}
+
+sub RefreshEvent($obj, $args) {  #OK not used
+    ReportPraticed;
+    my $count = DeletePraticed;
+    if $count {
+        AddTunesToListStore($model, $tunes, $practice-dates.Older(50).pick($count));
+    }
 }
 
 sub DeleteEvent($obj, $args) {  #OK not used

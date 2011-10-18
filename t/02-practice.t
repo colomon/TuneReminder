@@ -5,7 +5,7 @@ plan 14;
 
 my $test-filename = "t/test-data.dates";
 
-# unlink $test-filename;
+unlink $test-filename;
 
 my $pd = PracticeDates.new();
 isa_ok $pd, PracticeDates, "We created a PracticeDates object";
