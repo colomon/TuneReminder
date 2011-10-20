@@ -2,20 +2,12 @@ use Tunes;
 use PracticeDates;
 
 my $filename = "sol-tunes";
+my $tunes-to-display = 10;
 
-# Main documentation: http://docs.go-mono.com, particularly
-# Gnome (for Gdk and Gtk) and Mono (for Cairo) libraries.
-# See also: The X-Windows Disaster at http://www.art.net/~hopkins/Don/unix-haters/handbook.html
-
-my $tunes = Tunes.new;
-$tunes.Load($filename);
-my $practice-dates = PracticeDates.new;
-$practice-dates.Load($filename ~ ".dates");
+#####################################################################
 
 constant $GTK  = "gtk-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f";
-# constant $GDK  = "gdk-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f";
 constant $GLIB = "glib-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f";
-# use 'gacutil -l' to look up similar module details
 
 constant $G_TYPE_STRING = CLR::("GLib.GType,$GLIB").String;
 constant $G_TYPE_INT = CLR::("GLib.GType,$GLIB").Int;
@@ -35,8 +27,15 @@ constant ListStore        = CLR::("Gtk.ListStore,$GTK");
 constant CellRenderer     = CLR::("Gtk.CellRenderer,$GTK");
 constant CellRendererText = CLR::("Gtk.CellRendererText,$GTK");
 constant CellRendererToggle = CLR::("Gtk.CellRendererToggle,$GTK");
-# constant GdkCairoHelper = CLR::("Gdk.CairoHelper,$GDK");
-constant GtkDrawingArea   = CLR::("Gtk.DrawingArea,$GTK");
+
+#####################################################################
+
+my $tunes = Tunes.new;
+$tunes.Load($filename);
+my $practice-dates = PracticeDates.new;
+$practice-dates.Load($filename ~ ".dates");
+
+ChooseMoreTunes($practice-dates, $practice-dates.Older(50).pick(5).map(*+0));
 
 Application.Init;
 my $window = Window.new("Tune Reminder");
@@ -44,7 +43,7 @@ my $windowSizeX = 640; my $windowSizeY = 560;
 $window.Resize($windowSizeX, $windowSizeY);  # TODO: resize at runtime NYI
 
 my $vbox = VBox.new(False, 4);
-my ($model, $view) = CreateTreeAndView($tunes, $practice-dates.Older(50).pick(10));
+my ($model, $view) = CreateTreeAndView($tunes, ChooseMoreTunes($practice-dates, []));
 $vbox.Add($view);
 
 my $hbb = HButtonBox.new;
@@ -60,6 +59,14 @@ $window.Add($vbox);
 $window.add_DeleteEvent(&DeleteEvent);
 $window.ShowAll;
 Application.Run;  # end of main program, it's all over when this returns
+
+sub ChooseMoreTunes($practice-dates, @already-chosen-tunes) {
+    my $tunes-desired = $tunes-to-display - +@already-chosen-tunes;
+    my @candidates = $practice-dates.Older(50).pick($tunes-to-display).map(*+0);
+    my %filter = @already-chosen-tunes X 1;
+    my @more-tunes = @candidates.grep({ !(%filter{$_}:exists) })[^$tunes-desired];
+    @more-tunes;
+}
 
 sub CreateTree($tunes, @elements) {
     my $store = ListStore.new($G_TYPE_INT, $G_TYPE_BOOLEAN, $G_TYPE_STRING, $G_TYPE_STRING, $G_TYPE_STRING);
@@ -142,23 +149,23 @@ sub DeletePraticed() {
     my $iter = TreeIter.default;
     $model.GetIterFirst($iter);
     
-    my $count = 0;
+    my @not-practiced;
     while $model.IterIsValid($iter) {
         if $model.GetValue($iter, 1).Equals(True) {
-            $count++;
             $model.Remove($iter);
         } else {
+            @not-practiced.push(+($model.GetValue($iter, 0).ToString));
             $model.IterNext($iter);
         }
     }
-    $count;
+    @not-practiced;
 }
 
 sub RefreshEvent($obj, $args) {  #OK not used
     ReportPraticed;
-    my $count = DeletePraticed;
-    if $count {
-        AddTunesToListStore($model, $tunes, $practice-dates.Older(50).pick($count));
+    my @not-practiced = DeletePraticed;
+    if +@not-practiced != $tunes-to-display {
+        AddTunesToListStore($model, $tunes, ChooseMoreTunes($practice-dates, @not-practiced));
     }
 }
 
