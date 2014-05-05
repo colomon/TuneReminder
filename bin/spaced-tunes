@@ -21,7 +21,7 @@ if $status-database.IO.e {
 loop {
     my $mix = @status.kv.map(-> $tune, $status { $tune => 1 / 2 ** $status }).Mix;
     my $tune = $mix.roll;
-    say $tunes.GetTuneName($tune);
+    say $tunes.GetTuneName($tune) ~ " [#$tune status {@status[$tune]}]";
     given prompt "Know / Don't Know / Quit: " {
         when "q" | "Q" { last; }
         when "k" | "K" { @status[$tune] = (@status[$tune] + 1) min 5 }
