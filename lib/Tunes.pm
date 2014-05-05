@@ -40,6 +40,7 @@ class Tunes {
         my $file = open($filename);
         for $file.lines -> $line {
             my ($id, $name, $snippet, $comment) = $line.split(" » ");
+            next unless $id ~~ /\d/;
             @!tunes[$id] = TuneRecord.new($id, $name, $snippet, $comment);
             $count++;
         }
