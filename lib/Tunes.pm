@@ -6,7 +6,7 @@ class Tunes {
         has $.comment;
 
         multi method new($id, $name, $snippet, $comment?) {
-            self.bless(*, :$id, :$name, :$snippet, :$comment);
+            self.bless(:$id, :$name, :$snippet, :$comment);
         }
     }
     
@@ -22,6 +22,7 @@ class Tunes {
     method GetTuneName($id)    { @!tunes[$id].name; }
     method GetTuneSnippet($id) { @!tunes[$id].snippet; }
     method GetTuneComment($id) { @!tunes[$id].comment; }
+    method GetNumberTunes()    { +@!tunes; }
     
     method Save($filename) {
         my $count = 0;

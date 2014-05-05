@@ -1,0 +1,33 @@
+#!/usr/bin/env perl6
+
+use v6;
+use Tunes;
+use JSON::Tiny;
+
+my $tune-database = "sol-tunes";
+my $status-database = "sol-status";
+
+my $tunes = Tunes.new;
+$tunes.Load($tune-database);
+
+my @status;
+if $status-database.IO.e {
+    my $file = from-json($status-database.IO.slurp);
+    @status = @$file, 0 xx ($tunes.GetNumberTunes - @$file);
+} else {
+    @status = 0 xx $tunes.GetNumberTunes;
+}
+
+loop {
+    my $mix = @status.kv.map(-> $tune, $status { $tune => 1 / 2 ** $status }).Mix;
+    my $tune = $mix.roll;
+    say $tunes.GetTuneName($tune);
+    given prompt "Know / Don't Know / Quit: " {
+        when "q" | "Q" { last; }
+        when "k" | "K" { @status[$tune] = (@status[$tune] + 1) min 5 }
+        when "d" | "D" { @status[$tune] = (@status[$tune] - 1) max 0 }
+    }
+    say "";
+}
+
+spurt($status-database, to-json($@status));
