@@ -1,0 +1,23 @@
+#!/usr/bin/env perl6
+
+use v6;
+use Tunes;
+use JSON::Tiny;
+
+my $tune-database = "sol-tunes";
+my $status-database = "sol-status";
+
+my $tunes = Tunes.new;
+$tunes.Load($tune-database);
+
+my @status;
+if $status-database.IO.e {
+    my $file = from-json($status-database.IO.slurp);
+    @status = @$file, 0 xx ($tunes.GetNumberTunes - @$file);
+} else {
+    @status = 0 xx $tunes.GetNumberTunes;
+}
+
+for @status.pairs.sort(-> $a, $b { $b.value <=> $a.value || $tunes.GetTuneName($a.key) leg $tunes.GetTuneName($b.key) }) -> $kv {
+    say $kv.value ~ " " ~ $tunes.GetTuneName($kv.key);
+}
