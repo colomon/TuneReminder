@@ -1,4 +1,10 @@
-This program attempts to duplicate the basic functionality of Alan Ng's Practice Machine (at http://irishtune.info ):
+This repo contains two main scripts, together with some simple libraries that went into them.
+
+
+spaced-tunes uses the same tune database and a much simpler (read no GUI) UI.  It runs well with current versions of Rakudo Perl 6.  It attempts to use a simple form of spaced repetition to aid with practicing.  You run it, and it gives you a random tune.  Each tune has a status which is used to weight how likely it to be chosen.  Each time you report that you know the tune, it becaomes only 1/2 as likely to be chosen the next time.  This makes it easy to focus on the tunes you need work on, while not forgetting the old ones.
+
+
+practice.pl attempts to duplicate the basic functionality of Alan Ng's Practice Machine (at http://irishtune.info ):
 
     https://github.com/colomon/TuneReminder/blob/master/PracticeMachine.png
 
@@ -27,4 +33,3 @@ Work needed:
 3) Script to report stats on practicing.
 
 4) Script to scrape tunes from Alan Ng's database.
-    
