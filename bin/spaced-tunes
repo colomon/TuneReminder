@@ -2,7 +2,6 @@
 
 use v6;
 use Tunes;
-use JSON::Tiny;
 
 my $tune-database = "sol-tunes";
 my $status-database = "sol-status";
@@ -13,9 +12,9 @@ $tunes.Load($tune-database);
 my @status;
 if $status-database.IO.e {
     my $file = from-json($status-database.IO.slurp);
-    @status = @$file, 0 xx ($tunes.GetNumberTunes - @$file);
+    @status = flat @$file, 0 xx ($tunes.GetNumberTunes - @$file);
 } else {
-    @status = 0 xx $tunes.GetNumberTunes;
+    @status = flat 0 xx $tunes.GetNumberTunes;
 }
 
 loop {
